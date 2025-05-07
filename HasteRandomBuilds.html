@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HASTE Random Build Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Heavitas&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1e1e1e;
+      color: #ffffff;
+      text-align: center;
+      padding: 30px;
+    }
+
+    h1 {
+      font-family: 'Heavitas', sans-serif;
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+
+    #build-display {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .item-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 120px;
+    }
+
+    .item-slot img {
+      width: 100%;
+      height: 100px;
+      object-fit: contain;
+      border: 2px solid #555;
+      border-radius: 10px;
+      background-color: #2a2a2a;
+    }
+
+    .item-name {
+      margin-top: 8px;
+      font-size: 14px;
+      height: 20px;
+    }
+
+    .buttons {
+      margin-top: 20px;
+    }
+
+    .buttons button {
+      background-color: teal;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .buttons button:hover {
+      background-color: #007777;
+    }
+  </style>
+</head>
+<body>
+  <h1>HASTE Random Build Generator</h1>
+  <div id="build-display">
+    <!-- Item slots appear here after spinning -->
+  </div>
+  <div class="buttons">
+    <button onclick="spinBuild()">Generate</button>
+    <button onclick="clearBuild()">Clear</button>
+  </div>
+
+  <script>
+    const items = [
+    {
+    id: "rocket_boots",
+    name: "Rocket Boots",
+    rarity: "common",
+    icon: "https://the-haste.wiki/items/rocketboots.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/rocketbootstooltip.png?raw=true",
+    description: "Gain 50% boost for 5.0 seconds"
+  },
+  {
+    id: "distance_based_health_insurance",
+    name: "Distance-Based Health Insurance",
+    rarity: "common",
+    icon: "https://the-haste.wiki/items/releasev1/distance-basedhealthinsurance.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/distancebasedhealthinsurancett.png?raw=true",
+    description: "On run 100 meters: Restore 3 health"
+  },
+  {
+    id: "plutonium_coin",
+    name: "Plutonium Coin",
+    rarity: "common",
+    icon: "https://github.com/Jesuitical/haste-item-tracker/blob/main/itemtracker/plutoniumcoin.png?raw=true",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/plutoniumcointt.png?raw=true",
+    description: "Cooldown: Gain 10 % Energy"
+  },
+  {
+    id: "perpetual_motion_machine",
+    name: "Perpetual Motion Machine",
+    rarity: "common",
+    icon: "https://the-haste.wiki/items/perpetualmotionmachine.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/perpetualmotionmachinett.png?raw=true",
+    description: "Cooldown: Gain 10% Energy"
+  },
+  {
+    id: "shimmering_condenser",
+    name: "Shimmering Condenser",
+    rarity: "common",
+    icon: "https://github.com/Jesuitical/haste-item-tracker/blob/main/itemtracker/shimmeringcondensor.png?raw=true",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/shimmeringcondensertt.png?raw=true",
+    description: "On Run 150 meters: Gain 3 sparks"
+  },
+  {
+    id: "transition_slingshot",
+    name: "Transition Slingshot",
+    rarity: "common",
+    icon: "https://github.com/Jesuitical/haste-item-tracker/blob/main/itemtracker/transitionslingshot.png?raw=true",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/transitionslingshottt.png?raw=true",
+    description: "On Enter Fragment: Gain 20% Boost for 10.0 seconds"
+  },
+  {
+    id: "void_charger",
+    name: "Void Charger",
+    rarity: "common",
+    icon: "https://the-haste.wiki/items/releasev1/voidcharger.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/voidchargertt.png?raw=true",
+    description: "On Enter Fragment: Gain 50% Energy"
+  },
+  {
+    id: "pocket_snack",
+    name: "Pocket Snack",
+    rarity: "common",
+    icon: "https://github.com/Jesuitical/haste-item-tracker/blob/main/itemtracker/pocketsnack.png?raw=true",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/pocketsnack.png?raw=true",
+    description: "On Enter Fragment: Restore 50 Health"
+  },
+  {
+    id: "void_compressor",
+    name: "Void Compressor",
+    rarity: "common",
+    icon: "https://github.com/Jesuitical/haste-item-tracker/blob/main/itemtracker/voidcompressor.png?raw=true",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/voidcompressortt.png?raw=true",
+    description: "On Enter Fragment: Gain 100 Sparks"
+  },
+  {
+    id: "spark_furnace",
+    name: "Spark Furnace",
+    rarity: "common",
+    icon: "https://the-haste.wiki/items/sparkfurnace.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/sparkfurnacett.png?raw=true",
+    description: "On Spark Pickup: Gain 2 % Energy"
+  },
+  {
+    id: "restorative_maneuver",
+    name: "Restorative Manuever",
+    rarity: "common",
+    icon: "https://the-haste.wiki/items/restorativemanuever.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/restorativemaneuvertt.png?raw=true",
+    description: "On Close Call: Restore 3 Health"
+  },
+  {
+    id: "adrenaline",
+    name: "Adrenaline",
+    rarity: "common",
+    icon: "https://the-haste.wiki/items/adrenaline.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/adrenalinett.png?raw=true",
+    description: "On Close Call: Gain 4 % Energy"
+  },
+  {
+    id: "mortar_pestle",
+    name: "Mortar and Pestle",
+    rarity: "common",
+    icon: "https://the-haste.wiki/items/mortarpestle.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/mortarandpestlett.png?raw=true",
+    description: "On Spark Pickup: Restore 1 Health"
+  },
+  {
+    id: "dynamo_treadmill",
+    name: "Dynamo Treadmill",
+    rarity: "common",
+    icon: "https://the-haste.wiki/items/releasev1/dynamotreadmill.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/dynamotrealmilltt.png?raw=true",
+    description: "On Run 150 meters: Gain 3% Energy"
+  },
+  {
+    id: "shortcut",
+    name: "Shortcut",
+    rarity: "common",
+    icon: "https://the-haste.wiki/items/shortcut.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/shortcut.png?raw=true",
+    description: "On Close Call: Gain 10 % Boost for 2.0 secounds"
+  },
+  {
+    id: "golden_necklace",
+    name: "Golden Necklace",
+    rarity: "common",
+    icon: "https://the-haste.wiki/items/goldennecklace.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/goldennecklacett.png?raw=true",
+    description: "+10% Boost"
+  },
+  {
+    id: "aromatic_herbs",
+    name: "\tAromatic Herbs",
+    rarity: "common",
+    icon: "https://the-haste.wiki/items/aromaticherbs.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/aromaticherbstt.png?raw=true",
+    description: "Cooldown: Restore 2 Health"
+  },
+  {
+    id: "replenishing_vial",
+    name: "Replenishing Vial",
+    rarity: "common",
+    icon: "https://the-haste.wiki/items/replenishingvial.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/repleneshingvial.png?raw=true",
+    description: "On Activate: Restore 100 Health"
+  },
+  {
+    id: "big_pumpkin",
+    name: "Big Pumpkin",
+    rarity: "common",
+    icon: "https://the-haste.wiki/items/bigpumpkin.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/bigpumpkintt.png?raw=true",
+    description: "+60 Max Health"
+  },
+  {
+    id: "overclocked_medical_drone",
+    name: "Overclocked Medical Drone",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/overclockedmedicaldrone.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/overclockedmedicaldronett.png?raw=true",
+    description: "Cooldown, 10% Chance to: Restore 2 Health"
+  },
+  {
+    id: "growth_potential",
+    name: "Growth Potential",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/growthpotential.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/growthpotentialtt.png?raw=true",
+    description: "Cooldown: 25% chance to Gain 15 Speed"
+  },
+  {
+    id: "reheated_soup",
+    name: "Reheated Soup",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/reheatedsoup.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/reheatedsouptt.png?raw=true",
+    description: "Per Point of Energy used: Restore 0.4 Health"
+  },
+  {
+    id: "intangibility",
+    name: "Intangibility",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/intangibility.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/intangibilitytt.png?raw=true",
+    description: "Per Point of Energy used: Gain 0.15s of invulnerability"
+  },
+  {
+    id: "greed_machine",
+    name: "Greed Machine",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/greedmachine.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/greedmachinett.png?raw=true",
+    description: "Every 25 Spark Pickup: Gain 35% Boost for 3.0 seconds, Invulnerability for 3.0 seconds, Gain 20 % Energy"
+  },
+  {
+    id: "big_squash",
+    name: "Big Squash",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/bigsquash.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/bigsquashtt.png?raw=true",
+    description: "+50% Max Health"
+  },
+  {
+    id: "fragile_taco",
+    name: "Fragile Taco",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/fragiletaco.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/fragiletacott.png?raw=true",
+    description: "If Last Landing was Perfect: Restore 2 Health every 1 seconds"
+  },
+  {
+    id: "speedy_recovery",
+    name: "Speedy Recovery",
+    rarity: "rare",
+    icon: "https://github.com/Jesuitical/haste-item-tracker/blob/main/itemtracker/speedyrecovery.png?raw=true",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/speedyrecoverytt.png?raw=true",
+    description: "If faster than 120 m/s: Restore 2 Health"
+  },
+  {
+    id: "heart_shaped_mirror",
+    name: "Heart Shaped Mirror",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/heartshapedmirror.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/heartshapedmirrortt.png?raw=true",
+    description: "While at Full Health: +100% Luck"
+  },
+  {
+    id: "400_leaf_clover",
+    name: "400-leaf Clover",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/400-leafclover.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/400leafclovertt.png?raw=true",
+    description: "+50% Luck"
+  },
+  {
+    id: "big_spark_magnet",
+    name: "Big Spark Magnet",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/bigsparkmagnet.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/bigsparkmagnettt.png?raw=true",
+    description: "+ 100% Spark Pickup Range"
+  },
+  {
+    id: "interest",
+    name: "Interest",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/interest.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/interesttt.png?raw=true",
+    description: "Cooldown: Gain 1 Spark"
+  },
+  {
+    id: "spark_powered_propeller",
+    name: "Spark Powered Propeller",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/sparkpoweredpropeller.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/sparkpoweredpropellertt.png?raw=true",
+    description: "On Spark Pickup: Gain 1 % Boost for 5.0 secounds"
+  },
+  {
+    id: "steady_investment",
+    name: "Steady Investment",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/steadyinvestment.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/steadyinvestmenttt.png?raw=true",
+    description: "On Perfect Landings: Gain 5 Sparks"
+  },
+  {
+    id: "high_risk_investment",
+    name: "High Risk Investment",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/highriskinvestment.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/highriskinvestment.png?raw=true",
+    description: "Cooldown, 10% Chance to: Gain 1 Spark"
+  },
+  {
+    id: "jackpot",
+    name: "\tJackpot",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/jackpot.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/jackpottt.png?raw=true",
+    description: "On Perfect Landings, 10% Chance to: Gain 5 Sparks"
+  },
+  {
+    id: "momentum_recalibrator",
+    name: "Momentum Recalibrator",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/momentumrecalibrator.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/momentumrecalibratortt.png?raw=true",
+    description: "On Non-Perfect Landings: Do a Perfect Landing"
+  },
+  {
+    id: "bitter_herbs",
+    name: "Bitter Herbs",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/bitterherbs.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/bitterherbstt.png?raw=true",
+    description: "Cooldown: Restore 2% Health"
+  },
+  {
+    id: "secret_technique_instructions",
+    name: "Secret Technique Instructions",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/secrettechniqueinstructions.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/secrettechniqueinsturctionstt.png?raw=true",
+    description: "On Perfect Landings, 30 % Chance to: Gain 30% Boost for 5.0 seconds"
+  },
+  {
+    id: "clown_shoes",
+    name: "Clown Shoes",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/clownshoes.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/clownshoestt.png?raw=true",
+    description: "On Non-Perfect Landings, 30% Chance to: Do a Perfect Landing"
+  },
+  {
+    id: "recyclable_rocket",
+    name: "Recyclable Rocket",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/recyclablerocket.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/recyclablerockettt.png?raw=true",
+    description: "On Activate: Gain 50 Speed for 6.0 seconds, -50% Turn Speed for 6.0 seconds"
+  },
+  {
+    id: "emergency_shoes",
+    name: "Emergency Shoes",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/emergencyshoes.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/emergencyshoestt.png?raw=true",
+    description: "If slower than 70 m/s: Invulnerability for 5.0 seconds, Gain 25 % Boost for 5.0 seconds"
+  },
+  {
+    id: "well_earned_confidence",
+    name: "Well Earned Confidence",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/wellearnedconfidence.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/wellearnedconfidendTT.png?raw=true",
+    description: "+2.5% Boost for each consecutive Perfect Landing"
+  },
+  {
+    id: "shiny_anchor_pin",
+    name: "Shiny Anchor Pin",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/shinyanchorpin.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/shinyanchorpintt.png?raw=true",
+    description: "If at Full Health: Gain 15% Boost for 1.0 seconds"
+  },
+  {
+    id: "mysterious_spring",
+    name: "Mysterious Spring",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/mysteriousspring.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/mysteriousspringtoooltip.png?raw=true",
+    description: "On Activate: Gain a Burst of Speed Upwards"
+  },
+  {
+    id: "vitamins",
+    name: "Vitamins",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/vitamins.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/vitaminstt.png?raw=true",
+    description: "On Heal: Gain 10 % Boost for 2.0 seconds"
+  },
+  {
+    id: "heirs_determination",
+    name: "Heir's Determination",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/heirsdetermination.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/herisdeterminationtt.png?raw=true",
+    description: "On Taking Damage: Gain 10% Boost for 10.0 seconds"
+  },
+  {
+    id: "n_dimensional_leaf_clover",
+    name: "N-Dimensional-leaf Clover",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/n-dimensional-leafclover.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/ndimensionalleaveclovertt.png?raw=true",
+    description: "On Close Call: +25% Luck for 2.0 seconds"
+  },
+  {
+    id: "performance_based_health_insurance",
+    name: "Performance Based Health Insurance",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/performancebasedhealthinsurance.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/performancebasedhealthinsurancett.png?raw=true",
+    description: "On Perfect Landings: Restore 3 Health"
+  },
+  {
+    id: "delayed_emergency_device",
+    name: "Delayed Emergency Device",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/delayedemergencydevice.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/delayedemergencydevicett.png?raw=true",
+    description: "On Close Call: Invulnerability for 0.3 seconds"
+  },
+  {
+    id: "protective_medallion",
+    name: "Protective Medallion",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/protectivemedallion.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/protectivemedalliontt.png?raw=true",
+    description: "On Taking Damage, 20 % Chance to: Ignore Damage"
+  },
+  {
+    id: "grunts_helmet",
+    name: "Grunt's Helmet",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/gruntshelmet.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/grunthelmettooltip.png?raw=true",
+    description: "On Perfect Landings: Invulnerability for 0.3 seconds"
+  },
+  {
+    id: "standard_redirector",
+    name: "Standard Redirector",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/standardredirector.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/standardredirectortooltip.png?raw=true",
+    description: "On Activate: Redirect Velocity towards your Look Direction"
+  },
+  {
+    id: "velocity_powered_syringe",
+    name: "Velocity Powered Syringe",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/velocitypoweredsyringe.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/velocitypoweredsyringetooltip.png?raw=true",
+    description: "Activate when faster than 120m/s: Restore 20 Health"
+  },
+  {
+    id: "personal_matter_stabilizer",
+    name: "Personal Matter Stabilizer",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/releasev1/personal_matter_stabilizer.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/peronsalmatterstabilizer.png?raw=true",
+    description: "On Activate: Invulnerability for 10.0 seconds"
+  },
+  {
+    id: "impulse_activated_stabilizer",
+    name: "Impulse Activated Stabilizer",
+    rarity: "rare",
+    icon: "https://the-haste.wiki/items/impulseactivatedstabilizer.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/impulseactivedstabilizertooltip.png?raw=true",
+    description: "On Taking Damage: Invulnerability for 0.5 seconds"
+  },
+  {
+    id: "low_grade_timeline_swapper",
+    name: "Low Grade Timeline Swapper",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/lowgradetimelineswapper.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/lowgradetimelineswappertt.png?raw=true",
+    description: "Cooldown: Restore 2% Health per 10% Boost"
+  },
+  {
+    id: "painful_coil",
+    name: "Painful Coil",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/painfulcoil.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/paintfulcoilTT.png?raw=true",
+    description: "Gain 0.3% Boost per missing Health"
+  },
+  {
+    id: "extreme_herbs",
+    name: "Extreme Herbs",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/extremeherbs.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/extremeherbstt.png?raw=true",
+    description: "Cooldown: Restore 5% of your Missing Health"
+  },
+  {
+    id: "boostr_pog",
+    name: "BOOSTR POG",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/boostrpog.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/boostrpogtt.png?raw=true",
+    description: "+3.0% Boost per 100 Sparks"
+  },
+  {
+    id: "pungent_herbs",
+    name: "Pungent Herbs",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/pungentherbs.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/pungentherbstt.png?raw=true",
+    description: "Cooldown, 10% Chance to: Restore 100 % Health"
+  },
+  {
+    id: "tight_schedule",
+    name: "Tight Schedule",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/tightschedule.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/tightschedulett.png?raw=true",
+    description: "	On Close Call: -0.25 to all Cooldowns"
+  },
+  {
+    id: "quick_taco",
+    name: "Quick Taco",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/quicktaco.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/quicktacott.png?raw=true",
+    description: "While running faster than 100m/s: +100 Max Health"
+  },
+  {
+    id: "energy_lash",
+    name: "Energy Lash",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/energylash.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/energylashtooltip.png?raw=true",
+    description: "On Activate: Use the Grappling Hook"
+  },
+  {
+    id: "friendly_looking_star",
+    name: "Friendly Looking Star",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/friendlylookingstar.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/friendlylookingstartt.png?raw=true",
+    description: "On Spark Pickup: Invulnerability for 0.2 seconds"
+  },
+  {
+    id: "planar_reconfiguration",
+    name: "Planar Reconfiguration\t",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/planarreconfiguration.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/planarreconfigurationtt.png?raw=true",
+    description: "On Close Call: All Non-Perfect Landings become Perfect for 0.5 seconds"
+  },
+  {
+    id: "atomic_timepiece",
+    name: "Atomic Timepiece",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/atomictimepiece.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/atomictimepiecett.png?raw=true",
+    description: "On Perfect Landings: -1.00 to all Cooldowns"
+  },
+  {
+    id: "personal_gravity_enhancer",
+    name: "Personal Gravity Enhancer",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/personalgravityenhancer.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/personalgravityenhancertt.png?raw=true",
+    description: "On Activate:Stick to the Ground for 5 seconds, Gain 35 % Boost for 5.0 seconds"
+  },
+  {
+    id: "timeline_shifter",
+    name: "Timeline Shifter",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/timelineshifter.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/timelineshiftertt.png?raw=true",
+    description: "On Activate: Teleport"
+  },
+  {
+    id: "steel_hat_lining",
+    name: "\tSteel Hat Lining",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/steelhatlining.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/steelhateliningtt.png?raw=true",
+    description: "On Activate: Invulnerability for 7 seconds, Restore 35% of Damage blocked as Health"
+  },
+  {
+    id: "instant_compensation_machine",
+    name: "Instant Compensation Machine",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/instantcompensationmachine.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/instantcompensationmachinett.png?raw=true",
+    description: "On Taking Damage: Gain 5 Sparks"
+  },
+  {
+    id: "fragile_confidence",
+    name: "Fragile Confidence",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/fragileconfidence.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/fragileconfidencett.png?raw=true",
+    description: "If Last Landing was Perfect: +15% Boost"
+  },
+  {
+    id: "brittle_breastplate",
+    name: "Brittle Breastplate",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/brittlebreastplate.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/brittlebreastplatett.png?raw=true",
+    description: "	+150% Max Health. On OK Landings or Worse: Lose 50 Health"
+  },
+  {
+    id: "time_dialation_thing",
+    name: "Time Dialation Thing",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/timedilationthing.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/timedialationthingtooltip.png?raw=true",
+    description: "On Activate: Slow Time and Increase Maneuverability for 3 seconds"
+  },
+  {
+    id: "karma",
+    name: "Karma",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/karma.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/karmatt.png?raw=true",
+    description: "+2% Luck per Missing Health"
+  },
+  {
+    id: "impact_activated_healing_drone",
+    name: "Impact Activated Healing Drone",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/impactactivatedhealingdrone.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/impactactivatedhealingdronett.png?raw=true",
+    description: "On Taking Damage: Restore 5 Health"
+  },
+  {
+    id: "timeline_recalibrator",
+    name: "Timeline Recalibrator",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/timelinerecalibrator.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/timelinerecalibratortt.png?raw=true",
+    description: "On Death: Ignore Death and Restore 25% of Max Health, Invulnerability for 5.0 seconds, Gain 15 % Boost for 5.0 seconds"
+  },
+  {
+    id: "ring_materializer",
+    name: "Ring Materializer",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/ringmaterializer.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/ringmaterializertt.png?raw=true",
+    description: "Cooldown: Spawn a Speed Ring randomly ahead"
+  },
+  {
+    id: "timeline_refactor",
+    name: "Timeline Refactor",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/timelinerefactor.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/timelinerefactortt.png?raw=true",
+    description: "On Taking Damage:Rewind yourself 5 seconds in time, Invulnerability for 0.4 seconds"
+  },
+  {
+    id: "overwound_pocketwatch",
+    name: "Overwound Pocketwatch",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/overwoundpocketwatch.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/overwoundpocketwatchtt.png?raw=true",
+    description: "Cooldown: -1.00 to all Cooldowns"
+  },
+  {
+    id: "general_relativity",
+    name: "General Relativity",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/generalrelativity.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/generalrelativitytt.png?raw=true",
+    description: "Cooldown: -0.1s to all Cooldowns per 10% Boost"
+  },
+  {
+    id: "leaders_pipe",
+    name: "Leaders Pipe",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/leadershippipe.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/leadershippipett.png?raw=true",
+    description: "While above 70% Health: Restore 3 % Health"
+  },
+  {
+    id: "spark_dasher",
+    name: "Spark Dasher",
+    rarity: "epic",
+    icon: "https://the-haste.wiki/items/releasev1/sparkdasher.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/sparkdashertooltip.png?raw=true",
+    description: "On Activate: Dash through nearby Sparks for 2 seconds 90% Damage Reduction while dashing"
+  },
+  {
+    id: "otherwordly_contact",
+    name: "Otherworldly Contact",
+    rarity: "legendary",
+    icon: "https://the-haste.wiki/items/releasev1/otherworldlycontact.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/otherworldlycontacttt.png?raw=true",
+    description: "On Activate: Destroy all nearby Obstacles for 5 seconds"
+  },
+  {
+    id: "blood_engine",
+    name: "Blood Engine",
+    rarity: "legendary",
+    icon: "https://the-haste.wiki/items/releasev1/bloodengine.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/bloodenginetooltip.png?raw=true",
+    description: "On Activate: Lose 5 Health, Gain 10% Boost for 5.0 secounds"
+  },
+  {
+    id: "experimental_autopilot",
+    name: "Experimental Autopilot",
+    rarity: "legendary",
+    icon: "https://the-haste.wiki/items/releasev1/experimentalautopilot.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/experimentalautopilottooltip.png?raw=true",
+    description: "On Activate: Automatically tries to Avoid Obstacles"
+  },
+  {
+    id: "overcomplicated_coin",
+    name: "Overcomplicated Coin",
+    rarity: "legendary",
+    icon: "https://the-haste.wiki/items/releasev1/overcomplicatedcoin.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/overcomplicatedcointt.png?raw=true",
+    description: "Cooldown, 50 % Chance to: +100% Luck for 0.8 seconds"
+  },
+  {
+    id: "portable_harvester",
+    name: "Portable Harvester",
+    rarity: "legendary",
+    icon: "https://the-haste.wiki/items/releasev1/portableharvester.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/portableharvestertt.png?raw=true",
+    description: "On Activate: Destroy all Obstacles directly ahead"
+  },
+  {
+    id: "flashback",
+    name: "Flashback",
+    rarity: "legendary",
+    icon: "https://github.com/Jesuitical/haste-item-tracker/blob/main/itemtracker/flashback.png?raw=true",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/flashbacktt.png?raw=true",
+    description: "On Close Call: Close Call Items are Triggered an extra time after 0.5 seconds"
+  },
+  {
+    id: "experimental_thrusters",
+    name: "Experimental Thrusters",
+    rarity: "legendary",
+    icon: "https://the-haste.wiki/items/releasev1/experimentalthrusters.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/experimentalthrusterstt.png?raw=true",
+    description: "+25% Boost On Non-Perfect Landings: Lose 5 Health"
+  },
+  {
+    id: "dangerous_investment_scheme",
+    name: "Dangerous Investment Scheme",
+    rarity: "legendary",
+    icon: "https://the-haste.wiki/items/releasev1/dangerousinvestmentscheme.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/dangerousinvestmentschemett.png?raw=true",
+    description: "-50% Spark Pickup Range, Cooldown:Gain 5 Sparks, On Spark Collected:Lose 2 Health"
+  },
+  {
+    id: "wingspan",
+    name: "Wingspan",
+    rarity: "legendary",
+    icon: "https://the-haste.wiki/items/releasev1/wingspan.png",
+    tooltipImage: "https://github.com/Jesuitical/haste-item-tracker/blob/main/tooltips/wingspantt.png?raw=true",
+    description: "	+25% Boost, On Close Call: Lose 5 Health"
+  }
+    ];
+
+    function spinBuild() {
+      const buildDisplay = document.getElementById("build-display");
+      buildDisplay.innerHTML = "";
+
+      for (let i = 0; i < 4; i++) {
+        const slot = document.createElement("div");
+        slot.className = "item-slot";
+        const img = document.createElement("img");
+        const name = document.createElement("div");
+        name.className = "item-name";
+
+        slot.appendChild(img);
+        slot.appendChild(name);
+        buildDisplay.appendChild(slot);
+
+        let spinCount = 0;
+        const maxSpins = Math.floor(Math.random() * 10) + 10;
+
+        const interval = setInterval(() => {
+          const randomItem = items[Math.floor(Math.random() * items.length)];
+          img.src = randomItem.icon;
+          name.textContent = randomItem.name;
+          spinCount++;
+
+          if (spinCount >= maxSpins) {
+            clearInterval(interval);
+          }
+        }, 100);
+      }
+    }
+
+    function clearBuild() {
+      const buildDisplay = document.getElementById("build-display");
+      buildDisplay.innerHTML = "";
+    }
+  </script>
+</body>
+</html>
